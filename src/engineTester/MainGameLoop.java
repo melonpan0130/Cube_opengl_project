@@ -1,7 +1,9 @@
 package engineTester;
 
 import org.lwjgl.opengl.Display;
+import org.lwjgl.util.vector.Vector3f;
 
+import entities.Entity;
 import models.RawModel;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
@@ -18,8 +20,8 @@ public class MainGameLoop {
 		
 		// engine »ý¼º
 		Loader loader = new Loader();
-		Renderer renderer = new Renderer();
 		StaticShader shader = new StaticShader();
+		Renderer renderer = new Renderer(shader);
 		
 		float[] vertices = {
 				// left bottom triangle
@@ -43,14 +45,18 @@ public class MainGameLoop {
 		};
 		
 		RawModel model = loader.loadVAO(vertices, textureCoords, indices);
-		ModelTexture texture = new ModelTexture(loader.loadTexture("apple"));
-		TexturedModel texturedModel = new TexturedModel(model, texture);
+		
+		TexturedModel staticModel = new TexturedModel(model, 
+				new ModelTexture(loader.loadTexture("apple")));
+		
+		Entity entity = new Entity(staticModel, new Vector3f(0, 0, -1), 0, 0, 0, 1);
 		
 		while(!Display.isCloseRequested()) {
 			// game Logic
+			entity.increasePosition(0, 0, -0.1f);
 			renderer.prepare();
 			shader.start();
-			renderer.render(texturedModel);
+			renderer.render(entity, shader);
 			shader.stop();
 			DisplayManager.updateDisplay();
 		}
